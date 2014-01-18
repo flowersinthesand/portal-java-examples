@@ -1,0 +1,33 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Portal for Java with Spring</title>
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/foundation/5.0.2/css/normalize.min.css" />
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/foundation/5.0.2/css/foundation.css" />
+	<style type="text/css">
+	html {font-size: 90%;}
+	body {font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;}
+	#content > p:first-child {margin-top: 1em;}
+	#messages {list-style: none;}
+	</style>
+</head>
+<body>
+	<div class="row">
+	    <div id="content" class="large-12 columns">
+	    	<p class="text-center">
+	    		<code>Broadcaster</code> broadcasts a fake message every four seconds using injected <code>Server</code>.
+	    	</p>
+	    	<ul id="messages"></ul>
+	    </div>
+    </div>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/portal/1.1.1/portal.js"></script>
+	<script>
+		portal.open("/portal").message(function(message) {
+			$("#messages").prepend($("<li />").append($("<blockquote />", {text: message.content}).append($("<cite />", {text: message.source}))));
+		});
+	</script>
+</body>
+</html>
