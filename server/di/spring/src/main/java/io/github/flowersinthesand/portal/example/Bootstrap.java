@@ -20,10 +20,10 @@ public class Bootstrap implements ServletContextListener {
 		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		
 		// Find a server as a component managed by Spring
-		Server server = context.getBean(Server.class);
+		final Server server = context.getBean(Server.class);
 		
 		// Deliver HttpExchange and WebSocket produced by Atmosphere to the portal server
-		new AtmosphereBridge(event.getServletContext(), "/portal").httpAction(server.httpAction()).websocketAction(server.websocketAction());
+		new AtmosphereBridge(event.getServletContext(), "/chat").httpAction(server.httpAction()).websocketAction(server.websocketAction());
 	}
 
 	@Override
