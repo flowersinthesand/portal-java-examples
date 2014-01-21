@@ -20,7 +20,7 @@ public class Broadcaster {
 	private void broadcast() {
 		// Create a message
 		final Map<String, String> message = new LinkedHashMap<>();
-		message.put("username", "System");
+		message.put("username", "Spring");
 		message.put("message", "May I have your attention please.");
 
 		// Broadcast a message to all the socket in the server

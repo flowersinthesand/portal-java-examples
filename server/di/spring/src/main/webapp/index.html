@@ -1,98 +1,113 @@
-<!doctype html>
 <html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Portal for Java with Spring</title>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/portal/1.1.1/portal.js"></script>
-	<script type="text/javascript">
-	$(function() {
-		var username, 
-			lastUsername,
-			content = $("#content")[0],
-			input = $("#editor input")[0];
-		
-		function notify(text) {
-			$('<p class="message notice"/>').text(text).appendTo(content);
-			content.scrollTop = content.scrollHeight;
-		}
-		
-		$(input).keyup(function(event) {
-			if (event.which === 13 && $.trim(input.value)) {
-				if (!username) {
-					username = input.value;
-					$("#editor p").addClass("user").removeClass("guide").text(username);
-					
-					portal.open("/chat").on({
-						connecting: function() {
-							notify("The connection has been tried by '" + this.data("transport") + "'");
-						},
-						open: function() {
-							notify("The connection has been opened");
-							$(input).removeAttr("disabled").focus();
-						},
-						close: function(reason) {
-							notify("The connection has been closed due to '" + reason + "'");
-							$(input).attr("disabled", "disabled");
-						},
-						message: function(data) {
-							if (lastUsername !== data.username) {
-								lastUsername = data.username;
-								$('<p class="user"/>').text(data.username).appendTo(content);
-							}
-							
-							$('<p class="message"/>').text(data.message).appendTo(content);
-							content.scrollTop = content.scrollHeight;
-						},
-						waiting: function(delay, attempts) {
-							notify("The socket will try to reconnect after " + delay + " ms");
-							notify("The total number of reconnection attempts is " + attempts);
-						},
-						heartbeat: function() {
-							notify("The server's heart beats");
-						}
-					});
-				} else {
-					portal.find().send("message", {username: username, message: input.value});
-				}
-				
-				input.value = "";
-			}
-		});
-		
-		$(input).focus();
-		$(window).resize(function() {
-			$(content).height($(window).height() - $("#editor").outerHeight(true) - 15).scrollTop(content.scrollHeight);
-		})
-		.resize();
-	});
-	</script>
+	<title>Chat</title>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/normalize.min.css" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/foundation.css" />
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js"></script>
 	<style>
-	body {padding: 0; margin: 0; font-family: 'Trebuchet MS','Malgun Gothic',Verdana,Helvetica,Arial,sans-serif; font-size: 62.5%; color: #333333}
-	#content {height: 100%; overflow-y: auto; padding: 14px 15px 0 25px;}
-	#content p {margin: 0; padding: 0;}
-	#content .user {font-size: 1.5em; color: #3e3e3e; font-weight: bold; letter-spacing: -1px; margin-top: 0.5em;}
-	#content .message {font-size: 1.3em; color: #444444; line-height: 1.7em; word-wrap: break-word;}
-	#content .notice {font-size: 1.3em; color: #999;}
-	#editor {margin: 0 25px 15px 25px;}
-	#editor p {font-size: 1.5em; display: inline-block; margin: 1em;}
-	#editor .guide {color: #999;}
-	#editor .user {font-weight: bold;}
-	#editor form {position: relative;}
-	#editor input {font-family: 'Trebuchet MS','Malgun Gothic'; width: 100%; height: 28px; line-height: 28px; border: medium none; border-color: #E5E5E5 #DBDBDB #D2D2D2; border-style: solid; border-width: 1px;}
+	html {font-size: 90%; overflow-y: scroll;}
+	.row {max-width: 100rem;}
+	.container {padding-bottom: 42px;}
+	footer {position: fixed; bottom: 0px; left: 0px; width: 100%; margin: 0 auto -18px; padding: 18px 0 0 0; background-color: inherit;}
+	#talk li { margin: 0.1em;}
+	#talk .user {font-weight: bold;}
+	#talk .notice {color: #777;}
 	</style>
 </head>
 <body>
-	<div id="content">
-		<p class="user"><span>Donghwan Kim</span></p>
-		<p class="message">Welcome to Portal for Java!</p>
+	<div class="row">
+		<div class="large-12 columns">
+			<hr />
+			<div class="container">
+				<ul id="talk" class="no-bullet">
+					<li>
+						<div class="row">
+							<div class="medium-2 columns text-center user">Donghwan Kim</div>
+							<div class="medium-10 columns message">Welcome to Portal.</div>
+						</div>
+					</li>
+					<li>
+						<div class="row">
+							<div class="medium-2 columns text-center user" style="display: none;">Donghwan Kim</div>
+							<div class="medium-10 columns message">This is a simple chat application.</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
 	</div>
-	<div id="editor">
-		<p class="guide">Enter your username</p>
-		<form action="#" onsubmit="return false;">
-			<input type="text" autocomplete="off" />
+	<footer>
+		<form id="form" autocomplete="off">
+			<div class="row collapse">
+				<div class="small-4 medium-2 columns">
+					<span class="prefix user"></span>
+				</div>
+				<div class="small-6 medium-9 columns">
+					<input type="text" name="message" placeholder="Type a message" disabled="disabled">
+				</div>
+				<div class="small-2 medium-1 columns">
+					<button type="submit" class="button postfix" disabled="disabled">Send</button>
+				</div>
+			</div>
 		</form>
-	</div>
+	</footer>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/js/foundation.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/Faker/0.5.11/MinFaker.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/portal/1.1.1/portal.js"></script>
+	<script>
+	var username = Faker.Name.findName();
+	
+	function notify(msg) {
+		var $template = $("<li><div class='row'><div class='medium-2 columns text-center user'></div><div class='medium-10 columns notice'></div></div></li>");
+		$template.find(".notice").text(msg);
+		$template.appendTo("#talk");
+	}
+	
+	$(document).foundation();
+	
+	portal.open("/chat").on({
+		connecting: function() {
+			notify("The connection has been tried by '" + this.data("transport") + "'");
+		},
+		open: function() {
+			notify("The connection has been opened");
+			$("#form :disabled").removeAttr("disabled").focus();
+		},
+		close: function(reason) {
+			notify("The connection has been closed due to '" + reason + "'");
+			$("#form :enabled").attr("disabled", "disabled");
+		},
+		message: function(message) {
+			var lastUser = $("#talk .user:last").text(),
+				$template = $("<li><div class='row'><div class='medium-2 columns text-center user'></div><div class='medium-10 columns message'></div></div></li>");
+			
+			$template.find(".user").text(message.username);
+			if (message.username == lastUser) {
+				$template.find(".user").hide();
+			}
+			$template.find(".message").text(message.message);
+			$template.appendTo("#talk");
+			$(window).scrollTop($("#talk").parent()[0].scrollHeight);
+		},
+		waiting: function(delay, attempts) {
+			notify("The socket will try to reconnect after " + delay + " ms");
+			notify("The total number of reconnection attempts is " + attempts);
+		},
+		heartbeat: function() {
+			notify("The server's heart beats");
+		}
+	});
+	
+	$("#form .user").text(username);
+	$("#form").submit(function() {
+		portal.find().send("message", {username: username, message: this.message.value});
+		this.message.value = "";
+		this.message.focus();
+		return false;
+	});
+	</script>
 </body>
 </html>
