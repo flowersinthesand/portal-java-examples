@@ -1,0 +1,113 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chat</title>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/normalize.min.css" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/foundation.css" />
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js"></script>
+	<style>
+	html {font-size: 90%; overflow-y: scroll;}
+	.row {max-width: 100rem;}
+	.container {padding-bottom: 42px;}
+	footer {position: fixed; bottom: 0px; left: 0px; width: 100%; margin: 0 auto -18px; padding: 18px 0 0 0; background-color: inherit;}
+	#talk li { margin: 0.1em;}
+	#talk .user {font-weight: bold;}
+	#talk .notice {color: #777;}
+	</style>
+</head>
+<body>
+	<div class="row">
+		<div class="large-12 columns">
+			<hr />
+			<div class="container">
+				<ul id="talk" class="no-bullet">
+					<li>
+						<div class="row">
+							<div class="medium-2 columns text-center user">Donghwan Kim</div>
+							<div class="medium-10 columns message">Welcome to Portal.</div>
+						</div>
+					</li>
+					<li>
+						<div class="row">
+							<div class="medium-2 columns text-center user" style="display: none;">Donghwan Kim</div>
+							<div class="medium-10 columns message">This is a simple chat application.</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<footer>
+		<form id="form" autocomplete="off">
+			<div class="row collapse">
+				<div class="small-4 medium-2 columns">
+					<span class="prefix user"></span>
+				</div>
+				<div class="small-6 medium-9 columns">
+					<input type="text" name="message" placeholder="Type a message" disabled="disabled">
+				</div>
+				<div class="small-2 medium-1 columns">
+					<button type="submit" class="button postfix" disabled="disabled">Send</button>
+				</div>
+			</div>
+		</form>
+	</footer>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/js/foundation.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/Faker/0.5.11/MinFaker.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/portal/1.1.1/portal.js"></script>
+	<script>
+	var username = Faker.Name.findName();
+	
+	function notify(msg) {
+		var $template = $("<li><div class='row'><div class='medium-2 columns text-center user'></div><div class='medium-10 columns notice'></div></div></li>");
+		$template.find(".notice").text(msg);
+		$template.appendTo("#talk");
+	}
+	
+	$(document).foundation();
+	
+	portal.open("/chat").on({
+		connecting: function() {
+			notify("The connection has been tried by '" + this.data("transport") + "'");
+		},
+		open: function() {
+			notify("The connection has been opened");
+			$("#form :disabled").removeAttr("disabled").focus();
+		},
+		close: function(reason) {
+			notify("The connection has been closed due to '" + reason + "'");
+			$("#form :enabled").attr("disabled", "disabled");
+		},
+		message: function(message) {
+			var lastUser = $("#talk .user:last").text(),
+				$template = $("<li><div class='row'><div class='medium-2 columns text-center user'></div><div class='medium-10 columns message'></div></div></li>");
+			
+			$template.find(".user").text(message.username);
+			if (message.username == lastUser) {
+				$template.find(".user").hide();
+			}
+			$template.find(".message").text(message.message);
+			$template.appendTo("#talk");
+			$(window).scrollTop($("#talk").parent()[0].scrollHeight);
+		},
+		waiting: function(delay, attempts) {
+			notify("The socket will try to reconnect after " + delay + " ms");
+			notify("The total number of reconnection attempts is " + attempts);
+		},
+		heartbeat: function() {
+			notify("The server's heart beats");
+		}
+	});
+	
+	$("#form .user").text(username);
+	$("#form").submit(function() {
+		portal.find().send("message", {username: username, message: this.message.value});
+		this.message.value = "";
+		this.message.focus();
+		return false;
+	});
+	</script>
+</body>
+</html>
