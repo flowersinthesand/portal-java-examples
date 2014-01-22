@@ -25,9 +25,9 @@ public class AppConfig {
 		server.socketAction(new Action<Socket>() {
 			@Override
 			public void on(Socket socket) {
-				socket.on("message", new Action<Map<String, Object>>() {
+				socket.on("message", new Action<Map<String, String>>() {
 					@Override
-					public void on(Map<String, Object> message) {
+					public void on(Map<String, String> message) {
 						server.all().send("message", message);
 					}
 				});

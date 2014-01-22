@@ -3,7 +3,7 @@ This example shows how to integrate Portal for Java with Spring as dependency in
 Type:
 
 ```
-mvn jetty:run-war
+mvn jetty:run
 ```
 
 Then, open http://localhost:8080/ in your browser.
